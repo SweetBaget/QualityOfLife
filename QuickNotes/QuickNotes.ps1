@@ -1260,6 +1260,19 @@ try {
     Add-Type -AssemblyName WindowsBase
     Add-Type -AssemblyName System.Windows.Forms
 
+    # Своя идентичность в панели задач (AppUserModelID). Без этого окно остаётся
+    # «привязано» к powershell.exe: кнопка на панели задач группируется с ним и
+    # может показывать значок PowerShell вместо иконки приложения.
+    try {
+        Add-Type -Namespace Win32 -Name ShellApi -MemberDefinition @'
+[DllImport("shell32.dll", SetLastError = true)]
+public static extern int SetCurrentProcessExplicitAppUserModelID([MarshalAs(UnmanagedType.LPWStr)] string AppID);
+'@ -ErrorAction SilentlyContinue
+        [void][Win32.ShellApi]::SetCurrentProcessExplicitAppUserModelID('SweetBaget.QuickNotes')
+    } catch {
+        # Не критично: останется системная группировка по процессу.
+    }
+
     $script:DataDirectory  = $null
     $script:LastSavedPath  = $null
     $script:Buttons        = @(Read-ButtonConfig)
