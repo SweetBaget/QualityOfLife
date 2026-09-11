@@ -387,7 +387,11 @@ function Read-ButtonConfig {
             $result += [pscustomobject]@{ Name = $name; Folder = $folder }
         }
     }
-    return ,$result
+    # Отдаём кнопки в конвейер по одной. Раньше здесь был `return ,$result`,
+    # из-за которого весь список возвращался одним элементом: на стороне вызова
+    # @(Read-ButtonConfig) давал массив из одного элемента-массива, и все кнопки
+    # сливались в одну карточку с объединёнными названиями.
+    $result
 }
 
 function Save-ButtonConfig {
